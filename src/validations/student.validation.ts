@@ -9,7 +9,7 @@ export const registerStudentSchema = z.object({
     .min(7, 'Phone number must be at least 7 characters')
     .max(20, 'Phone number too long'),
   whatsappNumber: z.string().trim().max(20).optional().nullable(),
-  courseId: z.string().uuid('Valid course ID is required'),
+  courseId: z.string().trim().min(1, 'Valid course ID or slug is required'),
   notes: z.string().trim().optional().nullable(),
   // Extended student profile details
   occupation: z.string().trim().optional().nullable(),

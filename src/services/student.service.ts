@@ -9,9 +9,14 @@ import { RegisterStudentInput, UpdateStudentStatusInput } from '../validations/s
 
 export class StudentService {
   async registerStudent(input: RegisterStudentInput): Promise<Student> {
-    const course = await courseRepository.findById(input.courseId);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.courseId);
+    let course = isUuid ? await courseRepository.findById(input.courseId) : null;
     if (!course) {
-      throw new NotFoundError(`Course with ID "${input.courseId}" was not found`);
+      course = await courseRepository.findBySlug(input.courseId);
+    }
+
+    if (!course) {
+      throw new NotFoundError(`Course "${input.courseId}" was not found`);
     }
 
     if (!course.isPublished) {
@@ -41,7 +46,7 @@ export class StudentService {
       email: input.email.toLowerCase(),
       phone: input.phone,
       whatsappNumber: input.whatsappNumber || null,
-      courseId: input.courseId,
+      courseId: course.id,
       notes: consolidatedNotes,
       status: 'new',
       registeredAt: new Date(),

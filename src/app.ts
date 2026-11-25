@@ -15,15 +15,20 @@ export const createApp = (): Application => {
   app.use(helmet());
 
   // CORS configuration
-  const allowedOrigins = env.CORS_ORIGIN === '*' ? '*' : env.CORS_ORIGIN.split(',');
-  app.use(
-    cors({
-      origin: allowedOrigins,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-      credentials: true,
-    })
-  );
+  const allowedOrigins = env.CORS_ORIGIN === '*'
+    ? '*'
+    : env.CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean);
+  
+  const corsOptions = {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 204,
+  };
+
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
 
   // Request logging
   if (env.NODE_ENV !== 'test') {
